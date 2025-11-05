@@ -20,10 +20,16 @@ pub fn show_error_messages(message : String){
 }
 
 pub fn show_messages(message : String){
-    println!("{}",message.blue());
+    println!("{}",message.green());
 }
 
 
 
 
 
+
+
+
+
+
+// now next 

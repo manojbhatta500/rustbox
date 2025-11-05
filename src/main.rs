@@ -4,6 +4,10 @@ use std::env;
 mod utils;
 mod engine;
 mod server;
+mod model;
+mod test;
+
+
 
 
 fn main() {
@@ -34,3 +38,9 @@ fn main() {
 
 
 }
+
+
+// for testing
+// fn main(){
+//     test::convert_command_to_bytes_test();
+// }
