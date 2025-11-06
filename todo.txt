@@ -1,0 +1,8 @@
+client side : 
+1.modify the parse command in client.rs as using match instead of if else is better
+2.and use diffrent value based checking on the client side 
+3. be able to send simple command to server 
+
+server side : 
+1. match command in server file 
+2. execute command in server 
