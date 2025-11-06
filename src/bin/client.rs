@@ -1,6 +1,7 @@
 use std::{ env, net:: TcpStream};
 
-use rustbox::utils;
+use rustbox::{model, utils};
+use rustbox::model::Command;
 
 
 fn main(){
@@ -16,9 +17,26 @@ fn main(){
 
     // remove rustbox-cli 
     args.remove(0);
-    
-    parse_command(&args);
 
+    
+    match parse_command(&args){
+        Ok(cmd)=>{
+            match handle_command(cmd) {
+                Ok(_)=>{
+
+                }
+                Err(e)=>{
+                    utils::show_error_messages(e);
+                }
+            }
+        }    
+        Err(e)=>{
+            utils::show_error_messages(e);
+        }
+    }
+
+//    i am confused here how will i match here the commands can you suggest me 
+// only this part only 
     
 }
 
@@ -30,24 +48,62 @@ fn connect_to_server(ip_address: String,port: String)->Result<TcpStream, std::io
 }
 
 
-fn parse_command(commands: &Vec<String>){
-    let zero_index_upper_case = commands[0].to_ascii_uppercase();
-
-
-    if commands[0].to_ascii_lowercase() == "help" {
-        help_printer();
-    }else if  zero_index_upper_case == "SET" ||
-              zero_index_upper_case == "GET" ||
-              zero_index_upper_case == "UPLOAD" ||
-              zero_index_upper_case == "DOWNLOAD"
-    {
-
-        
-    }else {
-        utils::show_error_messages("invalid command. command must start with SET,GET,UPLOAD, DOWNLOAD".to_string());
-        help_printer();
+fn parse_command(commands: &Vec<String>)-> Result<Command, String> {
+    if commands.is_empty(){
+        return Err("No command provided".to_string());
     }
 
+    let cmd = commands[0].to_ascii_uppercase();
+
+    match cmd.as_str() {
+        "HELP" => {
+            help_printer();
+            Err("".to_string()) // just print help, not a real command
+        }
+        "SET" => {
+            if commands.len() < 3 {
+                return Err("SET requires <key> and <value>".to_string());
+            }
+            Ok(Command::Set {
+                key: commands[1].clone(),
+                value: commands[2].clone(),
+            })
+        }
+
+        "GET" => {
+            if commands.len() < 2 {
+                return Err("GET requires <key>".to_string());
+            }
+            Ok(Command::Get {
+                key: commands[1].clone(),
+            })
+        }
+
+        "UPLOAD" => {
+            if commands.len() < 2 {
+                return Err("UPLOAD requires <filename>".to_string());
+            }
+            let filename = &commands[1];
+            Ok(Command::Upload {
+                filename: filename.clone(),
+                content: [12,1].to_vec(),
+            })
+        }
+
+        "DOWNLOAD" => {
+            if commands.len() < 2 {
+                return Err("DOWNLOAD requires <filename>".to_string());
+            }
+            Ok(Command::Download {
+                filename: commands[1].clone(),
+            })
+        }
+
+        _ => Err(format!(
+            "Invalid command '{}'. Must be one of HELP, SET, GET, UPLOAD, DOWNLOAD.",
+            cmd
+        )),
+    }
 }
 
 
@@ -61,4 +117,75 @@ fn help_printer() {
     utils::show_messages("\nEXAMPLES:".to_string());
     utils::show_messages("rustbox-cli SET username Manoj".to_string());
     utils::show_messages("rustbox-cli GET username".to_string());
+}
+
+
+
+fn handle_command(cmd : Command)->Result<(),String>{
+
+    match cmd {
+        Command::Set { key, value }=>{
+            validate_set_command(key.clone(), value.clone())?;
+            exectute_set_command(key, value)?;
+            Ok(())
+        }
+        Command::Get { key }=>{
+            Ok(())
+        }
+
+        Command::Upload { filename, content }=>{
+            Ok(())
+        }
+        
+        Command::Download { filename }=>{
+            Ok(())
+        }
+
+    }
+}
+
+fn validate_set_command(key : String, value : String)-> Result<(),String>{
+    // here we will check if
+    if key.trim().is_empty(){
+        return Err("Key cannot be empty".to_string());
+    }
+
+    if value.trim().is_empty(){
+        return Err("value cannot be empty".to_string());
+    }
+
+    if key.chars().next().unwrap().is_numeric() {
+        return Err("Key cannot start with a number".to_string());
+    }
+
+    if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return Err("Key can only contain letters, digits, or underscores".to_string());
+    }
+
+     if key.len() > 50 {
+        return Err("Key is too long (max 50 characters)".to_string());
+    }
+
+    if value.len() > 500 {
+        return Err("Value is too long (max 500 characters)".to_string());
+    }
+
+
+    Ok(())
+}
+
+
+fn exectute_set_command(key : String, value : String)-> Result<(),String>{
+
+    let tcp_stream = connect_to_server("127.0.0.1".to_string(), "8080".to_string()).map_err(|e|e.to_string());
+
+    let command = Command::Set { key: key, value : value };
+
+    let command_json = serde_json::to_string(&command).map_err(|e|e.to_string());
+    
+
+
+
+
+    Ok(())
 }

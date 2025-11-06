@@ -7,7 +7,7 @@ pub enum Command {
     Set {key : String, value : String},
     Get {key : String},
     Upload{filename: String, content : Vec<u8>},
-    Download{filename: String, content : Vec<u8>}
+    Download{filename: String}
 }
 
 
