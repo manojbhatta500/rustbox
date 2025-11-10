@@ -1,4 +1,4 @@
-use std::{io::Read, net::TcpListener, sync::{Arc, Mutex}};
+use std::{io::{Read, Write}, net::TcpListener, sync::{Arc, Mutex}};
 
 use crate::{model, utils};
 
@@ -18,23 +18,25 @@ pub fn handle_connection(tcp_object : &TcpListener){
                 let data1 = Arc::clone(&arc);
                 std::thread::spawn(move||{
                     let data_object = data1.lock().unwrap();
-                utils::show_messages(format!("new connected device {:?}",data_object.peer_addr()));
+                utils::show_messages(format!("new connected device {:?}",data_object.peer_addr().unwrap()));
                 });
 
-                let data2 = Arc::clone(&arc);
+                let mut  data2 = Arc::clone(&arc);
 
                 std::thread::spawn(move||{
                 let mut buffer = [0;1024];
 
-                let mut  data_object2 = data2.lock().unwrap();
+                let mut  data_read_object = data2.lock().unwrap();
                 
-                let string_size = match  data_object2.read(&mut buffer) {
+                let string_size = match  data_read_object.read(&mut buffer) {
                     Ok(n)=>n,
                     Err(e)=>{
                         utils::exit_program(format!("{}",e));
                     }
                     
                 };
+
+                drop(data_read_object);
 
                 let  cmd = model::conevert_bytes_to_command(&buffer[..string_size]);
 
@@ -43,7 +45,15 @@ pub fn handle_connection(tcp_object : &TcpListener){
         println!("Received GET for key: {}", key);
         }
         model::Command::Set { key, value } => {
-        println!("Received SET for key: {}, value: {}", key, value);
+         println!("Received SET for key: {}, value: {}", key, value);
+            let success_response = model::SetCommandResponse{
+                success: true,
+                message: format!("successfully saved key : {}   and value : {}",key,value)
+            };
+            let mut  data_write_object  = data2.lock().unwrap();
+            let success_response_bytes = model::convert_set_response_to_bytes(&success_response);
+
+            data_write_object.write_all(&success_response_bytes).unwrap();
         }
         _ => {
         println!("Unknown command");

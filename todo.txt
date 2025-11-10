@@ -1,10 +1,4 @@
 client side : 
-3. be able to send simple command to server 
-4. client side core now is shifted to handle_command  function
-5. client side code  execute set function    connect and send data and listen for response 
-
-
-server side : 
-1. match command in server file 
-2. execute command in server 
-3. listen for incomming data and then   send some kind of response right 
+1.execute set command is done and is working  - use op file operation on it is for actual data store 
+2. make complete work of set all the work 
+3. make get functionality 

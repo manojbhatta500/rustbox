@@ -6,6 +6,7 @@ mod engine;
 mod server;
 mod model;
 mod test;
+mod operation;
 
 
 

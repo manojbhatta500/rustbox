@@ -1,3 +1,4 @@
+use std::io::{Read, Write};
 use std::{ env, net:: TcpStream};
 
 use rustbox::{model, utils};
@@ -177,15 +178,24 @@ fn validate_set_command(key : String, value : String)-> Result<(),String>{
 
 fn exectute_set_command(key : String, value : String)-> Result<(),String>{
 
-    let tcp_stream = connect_to_server("127.0.0.1".to_string(), "8080".to_string()).map_err(|e|e.to_string());
+    let mut  tcp_stream = connect_to_server("127.0.0.1".to_string(), "8080".to_string()).map_err(|e|e.to_string())?;
 
     let command = Command::Set { key: key, value : value };
 
-    let command_json = serde_json::to_string(&command).map_err(|e|e.to_string());
+    let command_json = serde_json::to_string(&command).map_err(|e|e.to_string())?;
     
 
+    tcp_stream.write_all(command_json.as_bytes()).map_err(|e|e.to_string())?;
 
 
+    println!("✅ Command sent to server successfully.");
+
+    let mut buffer = [0; 1024];
+    let n = tcp_stream.read(&mut buffer).map_err(|e| e.to_string())?;
+    
+    let _response = model::convert_bytes_to_set_response(buffer[..n].to_vec());
+
+    println!("operation success ✅");
 
     Ok(())
 }
