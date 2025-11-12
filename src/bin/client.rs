@@ -131,6 +131,8 @@ fn handle_command(cmd : Command)->Result<(),String>{
             Ok(())
         }
         Command::Get { key }=>{
+            validate_get_command(key.clone())?;
+            execute_get_command(key.clone())?;
             Ok(())
         }
 
@@ -143,6 +145,49 @@ fn handle_command(cmd : Command)->Result<(),String>{
         }
 
     }
+}
+
+fn validate_get_command(key: String)-> Result<(), String>{
+
+    if key.trim().is_empty(){
+                return Err("Key cannot be empty".to_string());
+    }
+
+    if key.chars().next().unwrap().is_numeric(){
+        return Err("Key cannot start with a number".to_string());
+    }
+
+
+    if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return Err("Key can only contain letters, digits, or underscores".to_string());
+    }
+
+    if key.len() > 50 {
+        return Err("Key is too long (max 50 characters)".to_string());
+    }
+    Ok(())
+}
+
+fn execute_get_command(key : String)->Result<(),String>{
+
+    let mut  tcp_stream = connect_to_server("127.0.0.1".to_string(), "8080".to_string()).map_err(|e|e.to_string())?;
+
+    let command = Command::Get { key: key };
+
+    let command_json = serde_json::to_string(&command).map_err(|e|e.to_string())?;
+
+    tcp_stream.write_all(command_json.as_bytes()).map_err(|e|e.to_string())?;
+
+    println!("✅ Command sent to server successfully.");
+
+    let mut buffer = [0; 1024];
+    let n = tcp_stream.read(&mut buffer).map_err(|e| e.to_string())?;
+    
+    let _response = model::convert_bytes_to_get_response(buffer[..n].to_vec());
+
+    println!("response from server : {:?}",_response);
+
+    Ok(())
 }
 
 fn validate_set_command(key : String, value : String)-> Result<(),String>{

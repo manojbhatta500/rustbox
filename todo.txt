@@ -1,4 +1,15 @@
 client side : 
-1.execute set command is done and is working  - use op file operation on it is for actual data store 
-2. make complete work of set all the work 
-3. make get functionality 
+1.  get command is connected in client  and server  now work is only make get command 
+work with strong error checking
+2.  put operation  function in set command in set command 
+
+
+
+
+get functionality work :
+1.check the keys and find send either error message or value 
+2. make get data use update also but later part 
+
+set functionality work : 
+1.   add set function  operation such as   set data 
+2. make it error free transaction 

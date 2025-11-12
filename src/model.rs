@@ -28,6 +28,25 @@ pub fn convert_bytes_to_set_response(bytes : Vec<u8>)->SetCommandResponse{
 }
 
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct  GetCommandResponse{
+    pub success : bool,
+    pub message : String
+}
+
+
+pub fn convert_get_response_to_bytes(set_cmd : &GetCommandResponse)-> Vec<u8>{
+    let command_string = serde_json::to_string(set_cmd).unwrap();
+    command_string.as_bytes().to_vec()
+}
+
+pub fn convert_bytes_to_get_response(bytes : Vec<u8>)->GetCommandResponse{
+    let command_string = String::from_utf8_lossy(&bytes[..]);
+    let cmd : GetCommandResponse = serde_json::from_str(&command_string).unwrap();
+    cmd
+}
+
+
 
 pub fn convert_command_to_bytes(cmd: &Command){
     let command_string = serde_json::to_string(cmd).unwrap();
