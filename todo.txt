@@ -1,15 +1,21 @@
 client side : 
-1.  get command is connected in client  and server  now work is only make get command 
-work with strong error checking
-2.  put operation  function in set command in set command 
+send file to server 
 
 
 
+server side:
+store file in server
 
-get functionality work :
-1.check the keys and find send either error message or value 
-2. make get data use update also but later part 
 
-set functionality work : 
-1.   add set function  operation such as   set data 
-2. make it error free transaction 
+
+completed : 
+get
+set 
+
+remaining : 
+upload 
+download
+
+
+remaining work in future : 
+put key value pair in hashmap  for efficient  calculation

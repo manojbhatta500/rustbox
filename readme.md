@@ -1,6 +1,6 @@
 tcp application 
 all communication will happen using the 
-tcp
+tcp 
 
 1.Set  key value data
 2.Get key value data 

@@ -185,7 +185,7 @@ fn execute_get_command(key : String)->Result<(),String>{
     
     let _response = model::convert_bytes_to_get_response(buffer[..n].to_vec());
 
-    println!("response from server : {:?}",_response);
+    println!("response from server : {:?}",_response.message);
 
     Ok(())
 }
@@ -240,7 +240,7 @@ fn exectute_set_command(key : String, value : String)-> Result<(),String>{
     
     let _response = model::convert_bytes_to_set_response(buffer[..n].to_vec());
 
-    println!("operation success ✅");
+    println!("{:?}",_response.message);
 
     Ok(())
 }
